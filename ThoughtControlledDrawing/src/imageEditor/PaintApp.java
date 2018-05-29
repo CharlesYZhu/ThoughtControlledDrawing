@@ -13,7 +13,7 @@ public class PaintApp extends JFrame{
     public TopMenuBar menuBar; 
     
     public PaintApp(){
-    	this.setSize(1024, 768);
+    	this.setSize(700, 700);
         this.setLayout(new BorderLayout());
         
         /* Initialize Components */
@@ -22,7 +22,7 @@ public class PaintApp extends JFrame{
         
         /* Set up the components */
         add(menuBar, BorderLayout.NORTH);
-        add(new JScrollPane(drawPanel), BorderLayout.CENTER);
+        add(drawPanel, BorderLayout.CENTER);
         
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
