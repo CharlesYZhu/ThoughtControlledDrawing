@@ -11,12 +11,13 @@ import java.awt.event.MouseMotionAdapter;
 
 import javax.swing.JComponent;
 
-public class DrawPanel extends JComponent implements Runnable{
+public class DrawPanel extends JComponent{
 	
 	private Image image;
 	private Graphics2D g2;
 	private int currentX, currentY, oldX, oldY;
-	
+//	private final int PENCIL, OVAL, RECTANGLE, POLYGON;
+//	private int current_tool;
 	
 	
 	public DrawPanel() {
@@ -39,9 +40,9 @@ public class DrawPanel extends JComponent implements Runnable{
 					oldX = currentX;
 					oldY = currentY;
 				}
+				System.out.println("Drag");
 			}
 		});
-		setBackground(Color.WHITE);
 	}
 	
 	protected void paintComponent(Graphics g) {
@@ -54,18 +55,11 @@ public class DrawPanel extends JComponent implements Runnable{
 		g.drawImage(image,0,0,null);
 	}
 	
-	private void clear() {
+	public void clear() {
 		g2.setPaint(Color.WHITE);
 		g2.fillRect(0,0,getSize().width, getSize().height);
 		g2.setPaint(Color.BLACK);
 		repaint();
-	}
-
-	@Override
-	public void run() {
-		// TODO: Put EEG functionality here
-		System.out.println("Test");
-		
 	}
 	
 }

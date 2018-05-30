@@ -13,11 +13,12 @@ import javax.swing.JMenuItem;
 public class TopMenuBar extends JMenuBar{
 	
 	
-
+	PaintApp _pa;
 	JMenu file;
-    JMenuItem quit;
+    JMenuItem quit, clear;
     
-    public TopMenuBar(){
+    public TopMenuBar(PaintApp pa){
+    	_pa = pa;
     	TopMenuBar.ItemHandler itemHandler = new TopMenuBar.ItemHandler();
 	    /* Tabs */
 	    file   = new JMenu("File");
@@ -25,10 +26,13 @@ public class TopMenuBar extends JMenuBar{
 	    
 	    /* Buttons */
 	    quit = new JMenuItem("Quit");
+	    clear = new JMenuItem("New Drawing");
 	    quit.addActionListener(itemHandler);
+	    clear.addActionListener(itemHandler);
 	    
 	    //add quit button to file
 	    file.add(quit);
+	    file.add(clear);
 	    
 	    //add file to menu bar
 	    add(file);
@@ -41,6 +45,12 @@ public class TopMenuBar extends JMenuBar{
 			if(e.getSource() == quit) {
 				Main.painter.dispose();
 				System.exit(0);
+			}
+			else if(e.getSource() == clear) {
+				_pa.clear();
+				System.out.println("Calling New Drawing");
+			} else {
+				System.out.println("Nothing");
 			}
 			
 		}
