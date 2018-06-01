@@ -47,8 +47,7 @@ public class TopMenuBar extends JMenuBar{
 				System.exit(0);
 			}
 			else if(e.getSource() == clear) {
-				_pa.clear();
-				System.out.println("Calling New Drawing");
+				_pa.clear(); //clear the current drawing
 			} else {
 				System.out.println("Nothing");
 			}

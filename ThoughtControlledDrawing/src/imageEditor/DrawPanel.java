@@ -8,19 +8,29 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.image.BufferedImage;
+import java.util.Stack;
 
 import javax.swing.JComponent;
 
 public class DrawPanel extends JComponent{
 	
+	private PaintApp _pa;
 	private Image image;
 	private Graphics2D g2;
 	private int currentX, currentY, oldX, oldY;
-//	private final int PENCIL, OVAL, RECTANGLE, POLYGON;
-//	private int current_tool;
+	public final int PENCIL = 0, ERASER = 1, OVAL = 2, RECTANGLE = 3, POLYGON = 4, BUCKET = 5;
+	private int current_tool;
+	private Stack<Image> undoStack;
+	private Stack<Image> redoStack;
 	
 	
-	public DrawPanel() {
+	public DrawPanel(PaintApp pa) {
+		_pa = pa;
+		//Start with the pencil tool
+		current_tool = PENCIL;
+		undoStack = new Stack<Image>();
+		redoStack = new Stack<Image>();
 		
 		setDoubleBuffered(false);
 		addMouseListener(new MouseAdapter() {
@@ -28,19 +38,24 @@ public class DrawPanel extends JComponent{
 				oldX = e.getX();
 				oldY = e.getY();
 			}
+			public void mouseReleased(MouseEvent e){
+				//Everytime the mouse is released, a stroke is finished, push image to stack
+				undoStack.push(copyImage(image));
+				//System.out.println(undoStack.size());
+			}
 		});
 		addMouseMotionListener(new MouseMotionAdapter() {
 			public void mouseDragged(MouseEvent e) {
 				currentX = e.getX();
 				currentY = e.getY();
 				
-				if (g2 != null) {
+				//Pencil Tool
+				if (g2 != null && current_tool == PENCIL) {
 					g2.drawLine(oldX, oldY, currentX, currentY);
 					repaint();
 					oldX = currentX;
 					oldY = currentY;
 				}
-				System.out.println("Drag");
 			}
 		});
 	}
@@ -60,6 +75,73 @@ public class DrawPanel extends JComponent{
 		g2.fillRect(0,0,getSize().width, getSize().height);
 		g2.setPaint(Color.BLACK);
 		repaint();
+	}
+	
+	public void setTool(int tool) {
+		current_tool = tool;
+		switch(tool){
+			case PENCIL:
+				_pa.setLoggerText("Selected: Pencil");
+				break;
+			case ERASER:
+				_pa.setLoggerText("Selected: Eraser");
+				break;
+			case OVAL:
+				_pa.setLoggerText("Selected: Oval");
+				break;
+			case RECTANGLE:
+				_pa.setLoggerText("Selected: Rectangle");
+				break;
+			case POLYGON:
+				_pa.setLoggerText("Selected: Polygon");
+				break;
+			case BUCKET:
+				_pa.setLoggerText("Selected: Bucket");
+				break;
+		}
+		
+	}
+	
+	public void undo(){
+		//TODO: implement undo
+		if(!undoStack.empty()){
+			//Add last Image to redo stack before undoing
+			redoStack.push(undoStack.peek());
+			
+			System.out.println("Undo");
+			//Set the current Image to last saved image on the image stack
+			image = undoStack.pop();
+			g2 = (Graphics2D) image.getGraphics();
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		    g2.setPaint(Color.black);
+			repaint();
+		}
+	}
+	
+	private BufferedImage copyImage(Image img){
+		BufferedImage copyImg = new BufferedImage(getSize().width, getSize().height, BufferedImage.TYPE_INT_RGB);
+		Graphics g = copyImg.createGraphics();
+		g.drawImage(img, 0, 0, getWidth(), getHeight(), null);
+		return copyImg;
+	}
+	
+	public void redo(){
+		//TODO: implement redo
+		if(!redoStack.empty()){
+			//Add top of redo stack to undo stack so the redo can be undone
+			undoStack.push(redoStack.peek());
+			
+			//Set current image to the 
+			image = redoStack.pop();
+			g2 = (Graphics2D) image.getGraphics();
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		    g2.setPaint(Color.black);
+			repaint();
+		}
+	}
+	
+	public int getCurrentTool(){
+		return current_tool;
 	}
 	
 }
