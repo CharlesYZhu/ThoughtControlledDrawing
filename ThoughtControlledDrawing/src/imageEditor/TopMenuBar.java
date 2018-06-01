@@ -15,7 +15,7 @@ public class TopMenuBar extends JMenuBar{
 	
 	PaintApp _pa;
 	JMenu file;
-    JMenuItem quit, clear;
+    JMenuItem quit, clear, export;
     
     public TopMenuBar(PaintApp pa){
     	_pa = pa;
@@ -27,12 +27,15 @@ public class TopMenuBar extends JMenuBar{
 	    /* Buttons */
 	    quit = new JMenuItem("Quit");
 	    clear = new JMenuItem("New Drawing");
+	    export = new JMenuItem("Export Image");
 	    quit.addActionListener(itemHandler);
 	    clear.addActionListener(itemHandler);
+	    export.addActionListener(itemHandler);
 	    
 	    //add quit button to file
 	    file.add(quit);
 	    file.add(clear);
+	    file.add(export);
 	    
 	    //add file to menu bar
 	    add(file);
@@ -48,6 +51,9 @@ public class TopMenuBar extends JMenuBar{
 			}
 			else if(e.getSource() == clear) {
 				_pa.clear(); //clear the current drawing
+			}
+			else if(e.getSource() == export){
+				//TODO: write export function
 			} else {
 				System.out.println("Nothing");
 			}

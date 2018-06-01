@@ -1,5 +1,6 @@
 package imageEditor;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -58,29 +59,43 @@ public class ToolBar extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			Color the_color = Color.LIGHT_GRAY;
+			//reset button background colors if anything except undo or redo were clicked
+			if(e.getSource() != buttons[6] && e.getSource() != buttons[7]) {
+				for(int i = 0; i < buttons.length; i++) {
+					buttons[i].setBackground(null);
+				}
+			}
+			
 			if(e.getSource() == buttons[0]){
 				//set tool to pencil
-				_dp.setTool(_dp.PENCIL);
+				_dp.setTool(_dp.PENCIL);	
+				buttons[0].setBackground(the_color);
 			}
 			else if (e.getSource() == buttons[1]){
 				//set tool to eraser
 				_dp.setTool(_dp.ERASER);
+				buttons[1].setBackground(the_color);
 			}
 			else if (e.getSource() == buttons[2]){
 				//set tool to oval
 				_dp.setTool(_dp.OVAL);
+				buttons[2].setBackground(the_color);
 			}
 			else if (e.getSource() == buttons[3]){
 				//set tool to rectangle
 				_dp.setTool(_dp.RECTANGLE);
+				buttons[3].setBackground(the_color);
 			}
 			else if (e.getSource() == buttons[4]){
 				//set tool to polygon
 				_dp.setTool(_dp.POLYGON);
+				buttons[4].setBackground(the_color);
 			}
 			else if (e.getSource() == buttons[5]){
 				//set tool to bucket
 				_dp.setTool(_dp.BUCKET);
+				buttons[5].setBackground(the_color);
 			}
 			else if (e.getSource() == buttons[6]){
 				//set tool to undo

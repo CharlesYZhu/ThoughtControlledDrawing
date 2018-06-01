@@ -29,19 +29,26 @@ public class DrawPanel extends JComponent{
 		_pa = pa;
 		//Start with the pencil tool
 		current_tool = PENCIL;
+		
 		undoStack = new Stack<Image>();
 		redoStack = new Stack<Image>();
 		
 		setDoubleBuffered(false);
 		addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
+				//Push the current image to the undo stack before changes are made
+				undoStack.push(copyImage(image));
+				//clear the redoStack if new lines are being drawn
+				redoStack = new Stack<Image>();
+				
 				oldX = e.getX();
 				oldY = e.getY();
 			}
 			public void mouseReleased(MouseEvent e){
-				//Everytime the mouse is released, a stroke is finished, push image to stack
-				undoStack.push(copyImage(image));
-				//System.out.println(undoStack.size());
+				//keep the last drawn image on the redo stack. Resets every new drawing
+				if(redoStack.isEmpty()) {
+					redoStack.push(copyImage(image));
+				}
 			}
 		});
 		addMouseMotionListener(new MouseMotionAdapter() {
@@ -103,7 +110,6 @@ public class DrawPanel extends JComponent{
 	}
 	
 	public void undo(){
-		//TODO: implement undo
 		if(!undoStack.empty()){
 			//Add last Image to redo stack before undoing
 			redoStack.push(undoStack.peek());
@@ -118,6 +124,7 @@ public class DrawPanel extends JComponent{
 		}
 	}
 	
+	/* Creates and returns a copy of the current Image instance */
 	private BufferedImage copyImage(Image img){
 		BufferedImage copyImg = new BufferedImage(getSize().width, getSize().height, BufferedImage.TYPE_INT_RGB);
 		Graphics g = copyImg.createGraphics();
@@ -126,7 +133,7 @@ public class DrawPanel extends JComponent{
 	}
 	
 	public void redo(){
-		//TODO: implement redo
+		//TODO: fix redo
 		if(!redoStack.empty()){
 			//Add top of redo stack to undo stack so the redo can be undone
 			undoStack.push(redoStack.peek());
