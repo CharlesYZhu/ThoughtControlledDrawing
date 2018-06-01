@@ -49,6 +49,15 @@ public class DrawPanel extends JComponent{
 				if(redoStack.isEmpty()) {
 					redoStack.push(copyImage(image));
 				}
+				if(g2 != null && current_tool == OVAL) {
+					//System.out.println("Draw Oval");
+					g2.drawOval(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY));
+					repaint();
+				}
+				if(g2 != null && current_tool == RECTANGLE) {
+					g2.drawRect(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY));
+					repaint();
+				}
 			}
 		});
 		addMouseMotionListener(new MouseMotionAdapter() {
@@ -62,6 +71,13 @@ public class DrawPanel extends JComponent{
 					repaint();
 					oldX = currentX;
 					oldY = currentY;
+				}
+				if (current_tool == OVAL) {
+					Image tempOval = createImage(getSize().width, getSize().height); //TODO: fix logic
+					Graphics2D tempG2 = (Graphics2D) tempOval.getGraphics();
+					tempG2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+					tempG2.drawOval(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY));
+					repaint();
 				}
 			}
 		});
