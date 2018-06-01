@@ -151,4 +151,11 @@ public class DrawPanel extends JComponent{
 		return current_tool;
 	}
 	
+	public BufferedImage exportImage() {
+		BufferedImage export = new BufferedImage(getSize().width, getSize().height, BufferedImage.TYPE_INT_RGB);
+		Graphics g = export.createGraphics();
+		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
+		return export;
+	}
+	
 }

@@ -5,6 +5,7 @@ import imageEditor.TopMenuBar;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -54,6 +55,11 @@ public class TopMenuBar extends JMenuBar{
 			}
 			else if(e.getSource() == export){
 				//TODO: write export function
+				try {
+					_pa.exportImage();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 			} else {
 				System.out.println("Nothing");
 			}

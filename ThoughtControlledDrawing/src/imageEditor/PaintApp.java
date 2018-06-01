@@ -1,7 +1,11 @@
 package imageEditor;
 
 import java.awt.BorderLayout;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -41,6 +45,12 @@ public class PaintApp extends JFrame{
     
     public void setLoggerText(String text){
     	logger.setText(text);
+    }
+    
+    public void exportImage() throws IOException {
+    	BufferedImage export = drawPanel.exportImage();
+    	File outputFile = new File("image.bmp");
+    	ImageIO.write(export, "BMP", outputFile);
     }
 	
 }
