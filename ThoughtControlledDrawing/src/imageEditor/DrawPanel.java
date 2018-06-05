@@ -23,6 +23,7 @@ public class DrawPanel extends JComponent{
 	private int current_tool;
 	private Stack<Image> undoStack;
 	private Stack<Image> redoStack;
+	private Stack<Image> tempImageStack; //used to save an image state to redraw when making preview images for rectangle and oval
 	
 	
 	public DrawPanel(PaintApp pa) {
@@ -32,6 +33,7 @@ public class DrawPanel extends JComponent{
 		
 		undoStack = new Stack<Image>();
 		redoStack = new Stack<Image>();
+		tempImageStack = new Stack<Image>();
 		
 		setDoubleBuffered(false);
 		addMouseListener(new MouseAdapter() {
@@ -43,6 +45,17 @@ public class DrawPanel extends JComponent{
 				
 				oldX = e.getX();
 				oldY = e.getY();
+				
+				if (current_tool == ERASER) {
+					g2.setColor(Color.WHITE); //set color to background color
+					g2.fillRect(e.getX()-25, e.getY()-25, 50, 50); //fill area with background color
+					repaint();
+					g2.setColor(Color.BLACK); //set color back to black
+				}
+				if (current_tool == OVAL) {
+					tempImageStack.push(copyImage(image));
+					System.out.println("Saved Instance");
+				}
 			}
 			public void mouseReleased(MouseEvent e){
 				//keep the last drawn image on the redo stack. Resets every new drawing
@@ -50,9 +63,11 @@ public class DrawPanel extends JComponent{
 					redoStack.push(copyImage(image));
 				}
 				if(g2 != null && current_tool == OVAL) {
-					//System.out.println("Draw Oval");
+					//Take the smaller coordinate(between oldX and current) to decide the origin. Absolute value the difference b/t current and old to get size.
 					g2.drawOval(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY));
 					repaint();
+					tempImageStack.pop();
+					System.out.println("Deleted Instance");
 				}
 				if(g2 != null && current_tool == RECTANGLE) {
 					g2.drawRect(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY));
@@ -72,12 +87,21 @@ public class DrawPanel extends JComponent{
 					oldX = currentX;
 					oldY = currentY;
 				}
+				//Draw Preview of Oval
 				if (current_tool == OVAL) {
-					Image tempOval = createImage(getSize().width, getSize().height); //TODO: fix logic
-					Graphics2D tempG2 = (Graphics2D) tempOval.getGraphics();
-					tempG2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-					tempG2.drawOval(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY));
+					restore();
+					g2.drawOval(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY));
+				    repaint();
+				}
+				
+				if (current_tool == RECTANGLE) {
+					
+				}
+				if (current_tool == ERASER) {
+					g2.setColor(Color.WHITE); //set color to background color
+					g2.fillRect(currentX-25, currentY-25, 50, 50); //fill area with background color
 					repaint();
+					g2.setColor(Color.BLACK); //set color back to black
 				}
 			}
 		});
@@ -91,6 +115,7 @@ public class DrawPanel extends JComponent{
 			clear();
 		}
 		g.drawImage(image,0,0,null);
+		
 	}
 	
 	public void clear() {
@@ -130,7 +155,6 @@ public class DrawPanel extends JComponent{
 			//Add last Image to redo stack before undoing
 			redoStack.push(undoStack.peek());
 			
-			System.out.println("Undo");
 			//Set the current Image to last saved image on the image stack
 			image = undoStack.pop();
 			g2 = (Graphics2D) image.getGraphics();
@@ -161,6 +185,14 @@ public class DrawPanel extends JComponent{
 		    g2.setPaint(Color.black);
 			repaint();
 		}
+	}
+	
+	public void restore() {
+		image = tempImageStack.peek(); //reset to saved instance
+		g2 = (Graphics2D) image.getGraphics();
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	    g2.setPaint(Color.black);
+	    repaint();
 	}
 	
 	public int getCurrentTool(){
