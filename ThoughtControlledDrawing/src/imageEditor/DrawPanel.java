@@ -9,7 +9,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.Stack;
 
 import javax.swing.JComponent;
@@ -64,14 +63,31 @@ public class DrawPanel extends JComponent{
 				if (current_tool == POLYGON){
 					// Mouse button 3 is right-click
 					if(e.getButton() == 3){
-						//right-click to finish
-						g2.drawPolygon(polygonCoordinates.get_xCoordinates(), polygonCoordinates.get_yCoordinates(), polygonCoordinates.getNumCoordinates());
-						repaint();
-						polygonCoordinates = new Coordinates();
+						//right-click to finish and connect the points
+						if(polygonCoordinates.getNumCoordinates() != 0){
+							restore();
+							g2.drawPolygon(polygonCoordinates.get_xCoordinates(), polygonCoordinates.get_yCoordinates(), polygonCoordinates.getNumCoordinates());
+							repaint();
+							polygonCoordinates = new Coordinates();
+							tempImageStack.pop();
+						}
+						
 					} else {
+						//for preview
+						if(polygonCoordinates.getNumCoordinates() == 0){
+							tempImageStack.push(copyImage(image));
+							//draw the first point
+							g2.fillOval(e.getX()-3, e.getY()-3, 6, 6);
+							repaint();
+						} else {
+							//draw points
+							g2.fillOval(e.getX()-3, e.getY()-3, 6, 6);
+							repaint();
+						}
 						//left-click to draw TODO: Add preview and tool tip in logger
 						undoStack.pop(); //remove the image that was just added from undoStack since no shape was actually drawn
 						polygonCoordinates.addCoordinates(e.getX(), e.getY());
+						
 					}
 					
 				}
@@ -82,12 +98,14 @@ public class DrawPanel extends JComponent{
 					redoStack.push(copyImage(image));
 				}
 				if(g2 != null && current_tool == OVAL) {
+					restore();
 					//Take the smaller coordinate(between oldX and current) to decide the origin. Absolute value the difference b/t current and old to get size.
 					g2.drawOval(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY));
 					repaint();
 					tempImageStack.pop();
 				}
 				if(g2 != null && current_tool == RECTANGLE) {
+					restore();
 					g2.drawRect(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY));
 					repaint();
 					tempImageStack.pop();
