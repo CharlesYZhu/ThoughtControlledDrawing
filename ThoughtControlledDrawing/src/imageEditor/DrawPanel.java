@@ -24,6 +24,7 @@ public class DrawPanel extends JComponent{
 	private Stack<Image> undoStack;
 	private Stack<Image> redoStack;
 	private Stack<Image> tempImageStack; //used to save an image state to redraw when making preview images for rectangle and oval
+	private boolean tempReset = false;
 	
 	
 	public DrawPanel(PaintApp pa) {
@@ -52,7 +53,8 @@ public class DrawPanel extends JComponent{
 					repaint();
 					g2.setColor(Color.BLACK); //set color back to black
 				}
-				if (current_tool == OVAL) {
+				if (current_tool == OVAL || current_tool == RECTANGLE) {
+					//push a copy of the currnet image so that it can be redraw between drawing temp images for oval
 					tempImageStack.push(copyImage(image));
 					System.out.println("Saved Instance");
 				}
@@ -67,11 +69,11 @@ public class DrawPanel extends JComponent{
 					g2.drawOval(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY));
 					repaint();
 					tempImageStack.pop();
-					System.out.println("Deleted Instance");
 				}
 				if(g2 != null && current_tool == RECTANGLE) {
 					g2.drawRect(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY));
 					repaint();
+					tempImageStack.pop();
 				}
 			}
 		});
@@ -89,12 +91,15 @@ public class DrawPanel extends JComponent{
 				}
 				//Draw Preview of Oval
 				if (current_tool == OVAL) {
-					restore();
+					restore(); //clear the last temp drawing
 					g2.drawOval(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY));
 				    repaint();
 				}
 				
 				if (current_tool == RECTANGLE) {
+					restore();
+					g2.drawRect(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY));
+					repaint();
 					
 				}
 				if (current_tool == ERASER) {
@@ -188,11 +193,23 @@ public class DrawPanel extends JComponent{
 	}
 	
 	public void restore() {
-		image = tempImageStack.peek(); //reset to saved instance
-		g2 = (Graphics2D) image.getGraphics();
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-	    g2.setPaint(Color.black);
-	    repaint();
+		if(!tempImageStack.empty()){
+			//Set the current Image to last saved image on the image stack
+
+//			System.out.println(tempImageStack.empty());
+//			image = tempImageStack.peek();
+//			g2 = (Graphics2D) image.getGraphics();
+//			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//		    g2.setPaint(Color.black);
+//			repaint();
+			
+			//Restoring by redefining image takes too long and is never processed. Need to use this method
+			g2.setPaint(Color.WHITE);
+			g2.fillRect(0,0,getSize().width, getSize().height);
+			g2.setPaint(Color.BLACK);
+			g2.drawImage(tempImageStack.peek(), 0, 0, Color.WHITE, null);
+			repaint();
+		}
 	}
 	
 	public int getCurrentTool(){
