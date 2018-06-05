@@ -9,6 +9,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Stack;
 
 import javax.swing.JComponent;
@@ -24,6 +25,7 @@ public class DrawPanel extends JComponent{
 	private Stack<Image> undoStack;
 	private Stack<Image> redoStack;
 	private Stack<Image> tempImageStack; //used to save an image state to redraw when making preview images for rectangle and oval
+	private Coordinates polygonCoordinates;
 	private boolean tempReset = false;
 	
 	
@@ -35,6 +37,7 @@ public class DrawPanel extends JComponent{
 		undoStack = new Stack<Image>();
 		redoStack = new Stack<Image>();
 		tempImageStack = new Stack<Image>();
+		polygonCoordinates = new Coordinates();
 		
 		setDoubleBuffered(false);
 		addMouseListener(new MouseAdapter() {
@@ -57,6 +60,20 @@ public class DrawPanel extends JComponent{
 					//push a copy of the currnet image so that it can be redraw between drawing temp images for oval
 					tempImageStack.push(copyImage(image));
 					System.out.println("Saved Instance");
+				}
+				if (current_tool == POLYGON){
+					// Mouse button 3 is right-click
+					if(e.getButton() == 3){
+						//right-click to finish
+						g2.drawPolygon(polygonCoordinates.get_xCoordinates(), polygonCoordinates.get_yCoordinates(), polygonCoordinates.getNumCoordinates());
+						repaint();
+						polygonCoordinates = new Coordinates();
+					} else {
+						//left-click to draw TODO: Add preview and tool tip in logger
+						undoStack.pop(); //remove the image that was just added from undoStack since no shape was actually drawn
+						polygonCoordinates.addCoordinates(e.getX(), e.getY());
+					}
+					
 				}
 			}
 			public void mouseReleased(MouseEvent e){
