@@ -25,7 +25,6 @@ public class DrawPanel extends JComponent{
 	private Stack<Image> redoStack;
 	private Stack<Image> tempImageStack; //used to save an image state to redraw when making preview images for rectangle and oval
 	private Coordinates polygonCoordinates;
-	private boolean tempReset = false;
 	
 	
 	public DrawPanel(PaintApp pa) {
@@ -62,6 +61,7 @@ public class DrawPanel extends JComponent{
 				}
 				if (current_tool == POLYGON){
 					// Mouse button 3 is right-click
+					_pa.setLoggerText("Selected: Polygon Tool | Right-Click - Add points | Left-Click - Connect the points and finish");
 					if(e.getButton() == 3){
 						//right-click to finish and connect the points
 						if(polygonCoordinates.getNumCoordinates() != 0){
@@ -77,10 +77,12 @@ public class DrawPanel extends JComponent{
 						if(polygonCoordinates.getNumCoordinates() == 0){
 							tempImageStack.push(copyImage(image));
 							//draw the first point
+							g2.setColor(Color.ORANGE);
 							g2.fillOval(e.getX()-3, e.getY()-3, 6, 6);
 							repaint();
 						} else {
 							//draw points
+							g2.setColor(Color.ORANGE);
 							g2.fillOval(e.getX()-3, e.getY()-3, 6, 6);
 							repaint();
 						}
