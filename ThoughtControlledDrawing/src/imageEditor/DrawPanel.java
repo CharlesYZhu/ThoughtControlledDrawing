@@ -5,10 +5,12 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Stack;
 
 import javax.swing.JComponent;
@@ -25,6 +27,7 @@ public class DrawPanel extends JComponent{
 	private Stack<Image> redoStack;
 	private Stack<Image> tempImageStack; //used to save an image state to redraw when making preview images for rectangle and oval
 	private Coordinates polygonCoordinates;
+	private ArrayList<Shape> shapes;
 	
 	
 	public DrawPanel(PaintApp pa) {
@@ -36,10 +39,13 @@ public class DrawPanel extends JComponent{
 		redoStack = new Stack<Image>();
 		tempImageStack = new Stack<Image>();
 		polygonCoordinates = new Coordinates();
+		shapes = new ArrayList<Shape>();
 		
 		setDoubleBuffered(false);
 		addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
+				//Save in log where is being pressed
+				_pa.logAction("MousePressed at X:" + e.getX() + " Y:" + e.getY());
 				//Push the current image to the undo stack before changes are made
 				undoStack.push(copyImage(image));
 				//clear the redoStack if new lines are being drawn
@@ -53,16 +59,18 @@ public class DrawPanel extends JComponent{
 					g2.fillRect(e.getX()-25, e.getY()-25, 50, 50); //fill area with background color
 					repaint();
 					g2.setColor(Color.BLACK); //set color back to black
+//					_pa.logAction("MousePressed using ERASER tool at X:" + e.getX() + " Y:" + e.getY());
 				}
 				if (current_tool == OVAL || current_tool == RECTANGLE) {
 					//push a copy of the currnet image so that it can be redraw between drawing temp images for oval
 					tempImageStack.push(copyImage(image));
-					System.out.println("Saved Instance");
+//					_pa.logAction("MousePressed using Oval tool at X:" + e.getX() + " Y:" + e.getY());
 				}
 				if (current_tool == POLYGON){
 					// Mouse button 3 is right-click
 					_pa.setLoggerText("Selected: Polygon Tool | Right-Click - Add points | Left-Click - Connect the points and finish");
 					if(e.getButton() == 3){
+						_pa.logAction("^		RIGHTMOUSE CLICK		^");
 						//right-click to finish and connect the points
 						if(polygonCoordinates.getNumCoordinates() != 0){
 							restore();
@@ -95,6 +103,7 @@ public class DrawPanel extends JComponent{
 				}
 			}
 			public void mouseReleased(MouseEvent e){
+				_pa.logAction("MouseReleased at X:" + e.getX() + " Y:" + e.getY());
 				//keep the last drawn image on the redo stack. Resets every new drawing
 				if(redoStack.isEmpty()) {
 					redoStack.push(copyImage(image));
@@ -116,6 +125,7 @@ public class DrawPanel extends JComponent{
 		});
 		addMouseMotionListener(new MouseMotionAdapter() {
 			public void mouseDragged(MouseEvent e) {
+				_pa.logAction("MouseDragging at X:" + e.getX() + " Y:" + e.getY());
 				currentX = e.getX();
 				currentY = e.getY();
 				
@@ -171,21 +181,27 @@ public class DrawPanel extends JComponent{
 		current_tool = tool;
 		switch(tool){
 			case PENCIL:
+				_pa.logAction("PENCIL TOOL SELECTED");
 				_pa.setLoggerText("Selected: Pencil");
 				break;
 			case ERASER:
+				_pa.logAction("PENCIL TOOL SELECTED");
 				_pa.setLoggerText("Selected: Eraser");
 				break;
 			case OVAL:
+				_pa.logAction("PENCIL TOOL SELECTED");
 				_pa.setLoggerText("Selected: Oval");
 				break;
 			case RECTANGLE:
+				_pa.logAction("PENCIL TOOL SELECTED");
 				_pa.setLoggerText("Selected: Rectangle");
 				break;
 			case POLYGON:
+				_pa.logAction("PENCIL TOOL SELECTED");
 				_pa.setLoggerText("Selected: Polygon");
 				break;
 			case BUCKET:
+				_pa.logAction("PENCIL TOOL SELECTED");
 				_pa.setLoggerText("Selected: Bucket");
 				break;
 		}
@@ -196,6 +212,9 @@ public class DrawPanel extends JComponent{
 		if(!undoStack.empty()){
 			//Add last Image to redo stack before undoing
 			redoStack.push(undoStack.peek());
+			
+			//Log the undo
+			_pa.logAction("Undo");
 			
 			//Set the current Image to last saved image on the image stack
 			image = undoStack.pop();
@@ -219,6 +238,9 @@ public class DrawPanel extends JComponent{
 		if(!redoStack.empty()){
 			//Add top of redo stack to undo stack so the redo can be undone
 			undoStack.push(redoStack.peek());
+			
+			//Log redo
+			_pa.logAction("Redo");
 			
 			//Set current image to the 
 			image = redoStack.pop();
@@ -254,6 +276,7 @@ public class DrawPanel extends JComponent{
 	}
 	
 	public BufferedImage exportImage() {
+		_pa.logAction("Export Image");
 		BufferedImage export = new BufferedImage(getSize().width, getSize().height, BufferedImage.TYPE_INT_RGB);
 		Graphics g = export.createGraphics();
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
