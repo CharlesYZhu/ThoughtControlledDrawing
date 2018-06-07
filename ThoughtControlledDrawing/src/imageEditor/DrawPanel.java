@@ -4,11 +4,14 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Stack;
@@ -75,6 +78,7 @@ public class DrawPanel extends JComponent{
 						if(polygonCoordinates.getNumCoordinates() != 0){
 							restore();
 							g2.drawPolygon(polygonCoordinates.get_xCoordinates(), polygonCoordinates.get_yCoordinates(), polygonCoordinates.getNumCoordinates());
+							shapes.add(new Polygon(polygonCoordinates.get_xCoordinates(), polygonCoordinates.get_yCoordinates(), polygonCoordinates.getNumCoordinates()));
 							repaint();
 							polygonCoordinates = new Coordinates();
 							tempImageStack.pop();
@@ -101,6 +105,14 @@ public class DrawPanel extends JComponent{
 					}
 					
 				}
+				if (current_tool == BUCKET){
+					for(int i = 0; i < shapes.size(); i++){
+						if(shapes.get(i).contains(e.getX(), e.getY())){
+							g2.fill(shapes.get(i));
+							repaint();
+						}
+					}
+				}
 			}
 			public void mouseReleased(MouseEvent e){
 				_pa.logAction("MouseReleased at X:" + e.getX() + " Y:" + e.getY());
@@ -112,12 +124,14 @@ public class DrawPanel extends JComponent{
 					restore();
 					//Take the smaller coordinate(between oldX and current) to decide the origin. Absolute value the difference b/t current and old to get size.
 					g2.drawOval(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY));
+					shapes.add(new Ellipse2D.Double(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY)));
 					repaint();
 					tempImageStack.pop();
 				}
 				if(g2 != null && current_tool == RECTANGLE) {
 					restore();
 					g2.drawRect(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY));
+					shapes.add(new Rectangle(Math.min(oldX, e.getX()), Math.min(oldY,e.getY()), Math.abs(e.getX()-oldX), Math.abs(e.getY()-oldY)));
 					repaint();
 					tempImageStack.pop();
 				}
