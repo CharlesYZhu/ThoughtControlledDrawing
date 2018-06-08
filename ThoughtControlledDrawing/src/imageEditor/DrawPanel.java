@@ -141,7 +141,7 @@ public class DrawPanel extends JComponent{
 		});
 		addMouseMotionListener(new MouseMotionAdapter() {
 			public void mouseDragged(MouseEvent e) {
-				_pa.logAction("MouseDragging at X:" + e.getX() + " Y:" + e.getY());
+//				_pa.logAction("MouseDragging at X:" + e.getX() + " Y:" + e.getY());
 				currentX = e.getX();
 				currentY = e.getY();
 				
@@ -194,9 +194,18 @@ public class DrawPanel extends JComponent{
 	}
 	
 	public void setTool(int tool) {
+		//when a tool is set, reset all the drawing variables for when a user stops using a tool before finishing
+		restore(); //restore to saved image before preview image was drawn
+		if(!tempImageStack.isEmpty()) //delete the tempImage after restore if one exists
+			tempImageStack.pop();
+		//clear polygon coordinates
+		polygonCoordinates = new Coordinates();
+		
+		//set the tool
 		current_tool = tool;
 		switch(tool){
 			case PENCIL:
+				g2.setColor(Color.BLACK);
 				_pa.logAction("PENCIL TOOL SELECTED");
 				_pa.setLoggerText("Selected: Pencil");
 				break;
@@ -205,10 +214,12 @@ public class DrawPanel extends JComponent{
 				_pa.setLoggerText("Selected: Eraser");
 				break;
 			case OVAL:
+				g2.setColor(Color.BLACK);
 				_pa.logAction("PENCIL TOOL SELECTED");
 				_pa.setLoggerText("Selected: Oval");
 				break;
 			case RECTANGLE:
+				g2.setColor(Color.BLACK);
 				_pa.logAction("PENCIL TOOL SELECTED");
 				_pa.setLoggerText("Selected: Rectangle");
 				break;
@@ -217,6 +228,7 @@ public class DrawPanel extends JComponent{
 				_pa.setLoggerText("Selected: Polygon");
 				break;
 			case BUCKET:
+				g2.setColor(Color.GRAY);
 				_pa.logAction("PENCIL TOOL SELECTED");
 				_pa.setLoggerText("Selected: Bucket");
 				break;
