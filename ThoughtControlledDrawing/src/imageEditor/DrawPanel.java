@@ -73,6 +73,7 @@ public class DrawPanel extends JComponent{
 					// Mouse button 3 is right-click
 					_pa.setLoggerText("Selected: Polygon Tool | Right-Click - Add points | Left-Click - Connect the points and finish");
 					if(e.getButton() == 3){
+						undoStack.pop(); //don't save the preview image(saved because of line 53 every mouse click)
 						_pa.logAction("^		RIGHTMOUSE CLICK		^");
 						//right-click to finish and connect the points
 						if(polygonCoordinates.getNumCoordinates() != 0){
@@ -89,6 +90,7 @@ public class DrawPanel extends JComponent{
 						if(polygonCoordinates.getNumCoordinates() == 0){
 							tempImageStack.push(copyImage(image));
 							//draw the first point
+							undoStack.push(copyImage(image)); //push it again because the copy will be removed
 							g2.setColor(Color.ORANGE);
 							g2.fillOval(e.getX()-3, e.getY()-3, 6, 6);
 							repaint();
