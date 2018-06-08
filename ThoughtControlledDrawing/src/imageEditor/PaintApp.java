@@ -61,5 +61,9 @@ public class PaintApp extends JFrame{
     	String timestamp = new java.util.Date().toString();
     	printWriter.print("[" + timestamp + "] : " + action + "\n");
     }
+    
+    public void closeWriter(){
+    	printWriter.close();
+    }
 	
 }

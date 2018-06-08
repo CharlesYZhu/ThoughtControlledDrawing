@@ -47,6 +47,7 @@ public class TopMenuBar extends JMenuBar{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if(e.getSource() == quit) {
+				_pa.closeWriter();
 				Main.painter.dispose();
 				System.exit(0);
 			}

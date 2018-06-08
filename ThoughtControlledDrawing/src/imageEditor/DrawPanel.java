@@ -141,7 +141,7 @@ public class DrawPanel extends JComponent{
 		});
 		addMouseMotionListener(new MouseMotionAdapter() {
 			public void mouseDragged(MouseEvent e) {
-//				_pa.logAction("MouseDragging at X:" + e.getX() + " Y:" + e.getY());
+				_pa.logAction("MouseDragging at X:" + e.getX() + " Y:" + e.getY());
 				currentX = e.getX();
 				currentY = e.getY();
 				
@@ -210,26 +210,26 @@ public class DrawPanel extends JComponent{
 				_pa.setLoggerText("Selected: Pencil");
 				break;
 			case ERASER:
-				_pa.logAction("PENCIL TOOL SELECTED");
+				_pa.logAction("ERASER TOOL SELECTED");
 				_pa.setLoggerText("Selected: Eraser");
 				break;
 			case OVAL:
 				g2.setColor(Color.BLACK);
-				_pa.logAction("PENCIL TOOL SELECTED");
+				_pa.logAction("OVAL TOOL SELECTED");
 				_pa.setLoggerText("Selected: Oval");
 				break;
 			case RECTANGLE:
 				g2.setColor(Color.BLACK);
-				_pa.logAction("PENCIL TOOL SELECTED");
+				_pa.logAction("RECTANGLE TOOL SELECTED");
 				_pa.setLoggerText("Selected: Rectangle");
 				break;
 			case POLYGON:
-				_pa.logAction("PENCIL TOOL SELECTED");
+				_pa.logAction("POLYGON TOOL SELECTED");
 				_pa.setLoggerText("Selected: Polygon");
 				break;
 			case BUCKET:
 				g2.setColor(Color.GRAY);
-				_pa.logAction("PENCIL TOOL SELECTED");
+				_pa.logAction("BUCKET TOOL SELECTED");
 				_pa.setLoggerText("Selected: Bucket");
 				break;
 		}
