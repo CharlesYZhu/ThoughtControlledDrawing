@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -18,10 +19,13 @@ public class PaintApp extends JFrame{
     public TopMenuBar menuBar;
     public ToolBar toolBar;
     private JTextField logger;
+    private PrintWriter printWriter;
     
-    public PaintApp(){
+    public PaintApp(PrintWriter pw){
     	this.setSize(700, 700);
         this.setLayout(new BorderLayout());
+        
+        printWriter = pw; //for logging and timestamping user actions
         
         /* Initialize Components */
         drawPanel = new DrawPanel(this);
@@ -51,6 +55,15 @@ public class PaintApp extends JFrame{
     	BufferedImage export = drawPanel.exportImage();
     	File outputFile = new File("image.bmp");
     	ImageIO.write(export, "BMP", outputFile);
+    }
+    
+    public void logAction(String action){
+    	String timestamp = new java.util.Date().toString();
+    	printWriter.print("[" + timestamp + "] : " + action + "\n");
+    }
+    
+    public void closeWriter(){
+    	printWriter.close();
     }
 	
 }
