@@ -6,7 +6,7 @@ import com.sun.jna.ptr.*;
 
 /** Simple example of JNA interface mapping and usage. */
 public class CommandReader {
-	//test1
+	//test1.1
 	
 	//Step 1 - Indicate location to save local profiles
 	//private static String profileNameForLoading = "C:\\Users\\Charles\\Desktop\\Emotiv_Profiles\\profile1.emu";
