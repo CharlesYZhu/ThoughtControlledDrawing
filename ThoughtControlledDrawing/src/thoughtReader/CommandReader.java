@@ -106,7 +106,8 @@ public class CommandReader {
 	}
 	
 	private static void showCurrentAction(Pointer eState) {
-		System.out.println(EmoState.INSTANCE.IS_MentalCommandGetCurrentAction(eState));
+		System.out.println("Action: " + EmoState.INSTANCE.IS_MentalCommandGetCurrentAction(eState) + 
+				" | Power: " + EmoState.INSTANCE.IS_MentalCommandGetCurrentActionPower(eState));
 	}
 }
 
