@@ -1,113 +1,120 @@
 package thoughtReader;
-
+import java.io.BufferedReader;
 import com.emotiv.Iedk.*;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.*;
 
-/** Simple example of JNA interface mapping and usage. */
+
 public class CommandReader {
-	//test1.1
-	
-	//Step 1 - Indicate location to save local profiles
-	//private static String profileNameForLoading = "C:\\Users\\Charles\\Desktop\\Emotiv_Profiles\\profile1.emu";
-	//private String profileNameForSaving = "C:\\Users\\Charles\\Desktop\\Emotiv_Profiles\\profile1.emu";
+	public static final Pointer eEvent = Edk.INSTANCE.IEE_EmoEngineEventCreate();
+	public static final Pointer eState = Edk.INSTANCE.IEE_EmoStateCreate();
+
+	public static int state = 0;
 	public static IntByReference engineUserID = null;
 	public static IntByReference userCloudID = null;
 	public static IntByReference profileID = null;
 	public static String profileName = null;
-	//Step 1 ---- END ----
 	
-	public static void main(String[] args) {
-		
-		//** Step 1 for Cloud profile **
+	public static void main(String[] args) throws InterruptedException {
+
 		String userName = "joseph.quick";
 		String password = "Inner.Workings.9";
-		profileName = "joseph.quick";
+		profileName = "Charles.Zhu";
+
 		
 		engineUserID = new IntByReference(0);
 		userCloudID  = new IntByReference(0);
 		profileID 	 = new IntByReference(-1);
-		
-		//Step 2 create event
-		Pointer eEvent = Edk.INSTANCE.IEE_EmoEngineEventCreate();
-		Pointer eState = Edk.INSTANCE.IEE_EmoStateCreate();
-		//Step 2 ---- END ----
-		IntByReference userID = null;
-		int state = 0;
 
-		userID = new IntByReference(0);
-		
-		//Step 3 connect to the Emotiv Engine
-		if (Edk.INSTANCE.IEE_EngineConnect("Emotiv Systems-5") != EdkErrorCode.EDK_OK
-				.ToInt()) {
+		if (Edk.INSTANCE.IEE_EngineConnect("Emotiv Systems-5") != EdkErrorCode.EDK_OK.ToInt()) {
 			System.out.println("Emotiv Engine start up failed.");
 			return;
 		}
-		//Step 3 ---- END ----
-		
-		//Main loop
-		while (true) {
-			state = Edk.INSTANCE.IEE_EngineGetNextEvent(eEvent);
 
-			// New event needs to be handled
-			if (state == EdkErrorCode.EDK_OK.ToInt()) {
-
-				int eventType = Edk.INSTANCE.IEE_EmoEngineEventGetType(eEvent);
-				Edk.INSTANCE.IEE_EmoEngineEventGetUserId(eEvent, userID);
-				
-				if(eventType == Edk.IEE_Event_t.IEE_UserAdded.ToInt()) {
-					//Step 5 - When user is added, load profile
-					System.out.println("User " + userID.getValue() + " added");
-					loadProfile(userID.getValue());
-				}
-				else if(eventType == Edk.IEE_Event_t.IEE_UserRemoved.ToInt()) {
-					System.out.println("User removed");
-				}
-				else if(eventType == Edk.IEE_Event_t.IEE_EmoStateUpdated.ToInt()) {
-					//For displaying detected mental commands
-					Edk.INSTANCE.IEE_EmoEngineEventGetEmoState(eEvent, eState);
-					showCurrentAction(eState);
-				}
-				else if(eventType == Edk.IEE_Event_t.IEE_MentalCommandEvent.ToInt()) {
-					//TODO: For training
-				}
-
-
-			} else if (state != EdkErrorCode.EDK_NO_EVENT.ToInt()) {
-				System.out.println("Internal error in Emotiv Engine!");
-				break;
-			}
+		if (EmotivCloudClient.INSTANCE.EC_Connect() != EdkErrorCode.EDK_OK.ToInt()) {
+			System.out.println("Cannot connect to Emotiv Cloud");
+			return;
 		}
+
+		if (EmotivCloudClient.INSTANCE.EC_Login(userName, password) != EdkErrorCode.EDK_OK.ToInt()) {
+			System.out.println("Your login attempt has failed. The username or password may be incorrect");
+			return;
+		}
+
+		System.out.println("Logged in as " + userName);
+
+		if (EmotivCloudClient.INSTANCE.EC_GetUserDetail(userCloudID) != EdkErrorCode.EDK_OK.ToInt()) {
+			return;
+		}
+
+		MainLoop();
+		
+		System.out.println("Quitting...");
 
 		Edk.INSTANCE.IEE_EngineDisconnect();
 		Edk.INSTANCE.IEE_EmoStateFree(eState);
 		Edk.INSTANCE.IEE_EmoEngineEventFree(eEvent);
-		System.out.println("Disconnected!");
-	}
-	
-	//load the profile
-	private static void loadProfile(int userID) {
-		//Local version
-//		if(Edk.INSTANCE.IEE_LoadUserProfile(userID, profileNameForLoading) == EdkErrorCode.EDK_OK.ToInt()){
-//			System.out.println("Loading Profile : Successful");
-//		} else {
-//			System.out.println("Can't load profile or one does not exist");
-//		}
 		
-		int ProfileNum = EmotivCloudClient.INSTANCE.EC_GetAllProfileName(userCloudID.getValue());
-		
-		if(ProfileNum > 0) {
-			if (EmotivCloudClient.INSTANCE.EC_LoadUserProfile(userCloudID.getValue(), engineUserID.getValue(), profileID.getValue(),
-					-1) == EdkErrorCode.EDK_OK.ToInt())
-				System.out.println("Loading finished");
-			else
-				System.out.println("Loading failed");
-		}
-	}
-	
-	private static void showCurrentAction(Pointer eState) {
-		System.out.println("Action: " + EmoState.INSTANCE.IS_MentalCommandGetCurrentAction(eState) + 
-				" | Power: " + EmoState.INSTANCE.IS_MentalCommandGetCurrentActionPower(eState));
-	}
-}
+		System.out.println("Wating for the Thread");
 
+	}
+
+	
+
+	public static void MainLoop() {
+
+		while (true) {
+
+			state = Edk.INSTANCE.IEE_EngineGetNextEvent(eEvent);
+
+			if (state == EdkErrorCode.EDK_OK.ToInt()) {
+				int eventType = Edk.INSTANCE.IEE_EmoEngineEventGetType(eEvent);
+				Edk.INSTANCE.IEE_EmoEngineEventGetUserId(eEvent, engineUserID);
+
+				if (eventType == Edk.IEE_Event_t.IEE_UserAdded.ToInt()) {
+					System.out.println("New user " + engineUserID.getValue() + " added");
+					LoadProfile(userCloudID.getValue(), engineUserID.getValue(), false, profileName);
+				}
+				else if (eventType == Edk.IEE_Event_t.IEE_UserRemoved.ToInt())
+					System.out.println("User " + engineUserID.getValue() + " has been removed.");
+
+				else if (eventType == Edk.IEE_Event_t.IEE_EmoStateUpdated.ToInt()) {
+					Edk.INSTANCE.IEE_EmoEngineEventGetEmoState(eEvent, eState); 
+					System.out.println("Action: " + EmoState.INSTANCE.IS_MentalCommandGetCurrentAction(eState) + 
+							" | Power: " + EmoState.INSTANCE.IS_MentalCommandGetCurrentActionPower(eState));
+				}
+				else {
+				}
+
+			} else if (state != EdkErrorCode.EDK_NO_EVENT.ToInt())
+				System.out.println("Internal error in Emotiv Engine!");
+		}
+
+	}
+
+	private static void LoadProfile(int userCloudID, int engineUserID, boolean save, String profileName) {
+		int getNumberProfile = EmotivCloudClient.INSTANCE.EC_GetAllProfileName(userCloudID);
+		
+		/* This part is needed */
+		int result = EmotivCloudClient.INSTANCE.EC_GetProfileId(userCloudID, profileName, profileID);
+
+			if (getNumberProfile > 0) {
+				if (EmotivCloudClient.INSTANCE.EC_LoadUserProfile(userCloudID, engineUserID, profileID.getValue(),
+						-1) == EdkErrorCode.EDK_OK.ToInt()) {
+					System.out.println("Loading finished");
+					//Current Mental Command Activiation Level
+					IntByReference level = new IntByReference(0);
+					Edk.INSTANCE.IEE_MentalCommandGetActivationLevel(engineUserID, level);
+					System.out.println("Current MentalCommand Activation level: " + level.getValue());
+					//Overall skill rating
+					FloatByReference skill = new FloatByReference(0);
+					Edk.INSTANCE.IEE_MentalCommandGetOverallSkillRating(engineUserID, skill);
+					System.out.println("Current overall skill rating: " + skill.getValue());
+				}
+				else
+					System.out.println("Loading failed");
+			}
+			return;
+	}
+	
+}
