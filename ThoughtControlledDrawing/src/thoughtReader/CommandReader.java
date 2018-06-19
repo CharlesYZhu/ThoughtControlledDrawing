@@ -1,8 +1,12 @@
 package thoughtReader;
-import java.io.BufferedReader;
+
 import com.emotiv.Iedk.*;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.*;
+
+import java.awt.AWTException;
+import java.awt.Robot;
+import java.awt.event.InputEvent;
 
 
 public class CommandReader {
@@ -15,7 +19,8 @@ public class CommandReader {
 	public static IntByReference profileID = null;
 	public static String profileName = null;
 	
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) throws InterruptedException, AWTException {
+		Robot bot = new Robot();
 
 		String userName = "joseph.quick";
 		String password = "Inner.Workings.9";
@@ -47,7 +52,7 @@ public class CommandReader {
 			return;
 		}
 
-		MainLoop();
+		MainLoop(bot);
 		
 		System.out.println("Quitting...");
 
@@ -61,7 +66,7 @@ public class CommandReader {
 
 	
 
-	public static void MainLoop() {
+	public static void MainLoop(Robot bot) {
 
 		while (true) {
 
@@ -79,7 +84,8 @@ public class CommandReader {
 					System.out.println("User " + engineUserID.getValue() + " has been removed.");
 
 				else if (eventType == Edk.IEE_Event_t.IEE_EmoStateUpdated.ToInt()) {
-					Edk.INSTANCE.IEE_EmoEngineEventGetEmoState(eEvent, eState); 
+					Edk.INSTANCE.IEE_EmoEngineEventGetEmoState(eEvent, eState);
+					handleMouse(bot, EmoState.INSTANCE.IS_MentalCommandGetCurrentAction(eState), EmoState.INSTANCE.IS_MentalCommandGetCurrentActionPower(eState));
 					System.out.println("Action: " + EmoState.INSTANCE.IS_MentalCommandGetCurrentAction(eState) + 
 							" | Power: " + EmoState.INSTANCE.IS_MentalCommandGetCurrentActionPower(eState));
 				}
@@ -91,6 +97,22 @@ public class CommandReader {
 		}
 
 	}
+
+	private static void handleMouse(Robot bot, int action, float power) {
+		switch(action) {
+		case 2:
+			if(power > 0) {
+				System.out.println("Mouse Down");
+				bot.mousePress(InputEvent.BUTTON1_MASK);
+			}
+			break;
+		default:
+			System.out.println("Mouse Release");
+			bot.mouseRelease(InputEvent.BUTTON1_MASK);
+		}
+	}
+
+
 
 	private static void LoadProfile(int userCloudID, int engineUserID, boolean save, String profileName) {
 		int getNumberProfile = EmotivCloudClient.INSTANCE.EC_GetAllProfileName(userCloudID);
