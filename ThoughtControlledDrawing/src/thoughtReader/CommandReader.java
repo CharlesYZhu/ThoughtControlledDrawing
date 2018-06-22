@@ -5,6 +5,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.*;
 
 import java.awt.AWTException;
+import java.awt.MouseInfo;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 
@@ -19,12 +20,16 @@ public class CommandReader {
 	public static IntByReference profileID = null;
 	public static String profileName = null;
 	
+	public static Boolean mouseIsDown;
+	
 	public static void main(String[] args) throws InterruptedException, AWTException {
 		Robot bot = new Robot();
 
 		String userName = "joseph.quick";
 		String password = "Inner.Workings.9";
 		profileName = "Charles.Zhu";
+		
+		mouseIsDown = false;
 
 		
 		engineUserID = new IntByReference(0);
@@ -85,9 +90,25 @@ public class CommandReader {
 
 				else if (eventType == Edk.IEE_Event_t.IEE_EmoStateUpdated.ToInt()) {
 					Edk.INSTANCE.IEE_EmoEngineEventGetEmoState(eEvent, eState);
-					handleMouse(bot, EmoState.INSTANCE.IS_MentalCommandGetCurrentAction(eState), EmoState.INSTANCE.IS_MentalCommandGetCurrentActionPower(eState));
-					System.out.println("Action: " + EmoState.INSTANCE.IS_MentalCommandGetCurrentAction(eState) + 
-							" | Power: " + EmoState.INSTANCE.IS_MentalCommandGetCurrentActionPower(eState));
+
+//					if (EmoState.INSTANCE.IS_FacialExpressionGetSmileExtent(eState) > 0) {
+//						System.out.println("Smile");
+//					}
+					
+					if (EmoState.INSTANCE.IS_FacialExpressionIsBlink(eState) == 1) {
+						if(mouseIsDown) {
+							handleMouseClick(bot, false);
+						}
+						else if (mouseIsDown == false) {
+							handleMouseClick(bot, true);
+						}
+						System.out.println("Blink");
+					}
+					
+					handleMouseMove(bot, EmoState.INSTANCE.IS_MentalCommandGetCurrentAction(eState), EmoState.INSTANCE.IS_MentalCommandGetCurrentActionPower(eState));
+					
+//					System.out.println("Action: " + EmoState.INSTANCE.IS_MentalCommandGetCurrentAction(eState) + 
+//							" | Power: " + EmoState.INSTANCE.IS_MentalCommandGetCurrentActionPower(eState));
 				}
 				else {
 				}
@@ -98,17 +119,45 @@ public class CommandReader {
 
 	}
 
-	private static void handleMouse(Robot bot, int action, float power) {
+	private static void handleMouseMove(Robot bot, int action, float power) {
+		int currentX = MouseInfo.getPointerInfo().getLocation().x;
+		int currentY = MouseInfo.getPointerInfo().getLocation().y;
 		switch(action) {
-		case 2:
+		case 8:
+			if(power > 0) {
+				System.out.println("Mouse Up");
+				bot.mouseMove(currentX , currentY - (int)(power*10) );
+				
+			}
+			break;
+		case 16:
 			if(power > 0) {
 				System.out.println("Mouse Down");
-				bot.mousePress(InputEvent.BUTTON1_MASK);
+				bot.mouseMove(currentX , currentY + (int)(power*10) );
+			}
+			break;
+		case 32:
+			if(power > 0) {
+				System.out.println("Mouse Left");
+				bot.mouseMove(currentX - (int)(power*10) , currentY);
+			}
+			break;
+		case 64:
+			if(power > 0) {
+				System.out.println("Mouse Right");
+				bot.mouseMove(currentX + (int)(power*10) , currentY);
 			}
 			break;
 		default:
-			System.out.println("Mouse Release");
+			//Do nothing
+		}
+	}
+	
+	private static void handleMouseClick(Robot bot, Boolean mouseDown) {
+		if(mouseDown) {
 			bot.mouseRelease(InputEvent.BUTTON1_MASK);
+		} else {
+			bot.mousePress(InputEvent.BUTTON1_MASK);
 		}
 	}
 
