@@ -1,5 +1,6 @@
 package imageEditor;
 
+import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -7,7 +8,11 @@ import java.awt.Image;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Robot;
 import java.awt.Shape;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -31,12 +36,20 @@ public class DrawPanel extends JComponent{
 	private Stack<Image> tempImageStack; //used to save an image state to redraw when making preview images for rectangle and oval
 	private Coordinates polygonCoordinates;
 	private ArrayList<Shape> shapes;
+	private Robot bot;
+	private Boolean penDown;
 	
-	
-	public DrawPanel(PaintApp pa) {
+	public DrawPanel(PaintApp pa) throws AWTException {
+		//set focus to draw panel so that keyevents can be recognized
+		setFocusable(true);
 		_pa = pa;
+		
+		//Robot for Handling mouse control with key
+		bot = new Robot();
+		
 		//Start with the pencil tool
 		current_tool = PENCIL;
+		penDown = false;
 		
 		undoStack = new Stack<Image>();
 		redoStack = new Stack<Image>();
@@ -117,6 +130,9 @@ public class DrawPanel extends JComponent{
 				}
 			}
 			public void mouseReleased(MouseEvent e){
+				//always keep mouse pressed down
+				bot.mousePress(InputEvent.BUTTON1_MASK);
+				
 				_pa.logAction("MouseReleased at X:" + e.getX() + " Y:" + e.getY());
 				//keep the last drawn image on the redo stack. Resets every new drawing
 				if(redoStack.isEmpty()) {
@@ -147,10 +163,13 @@ public class DrawPanel extends JComponent{
 				
 				//Pencil Tool
 				if (g2 != null && current_tool == PENCIL) {
-					g2.drawLine(oldX, oldY, currentX, currentY);
-					repaint();
-					oldX = currentX;
-					oldY = currentY;
+//					System.out.println("Draw line");
+					if(penDown){
+						g2.drawLine(oldX, oldY, currentX, currentY);
+						repaint();
+						oldX = currentX;
+						oldY = currentY;
+					}
 				}
 				//Draw Preview of Oval
 				if (current_tool == OVAL) {
@@ -172,6 +191,35 @@ public class DrawPanel extends JComponent{
 					g2.setColor(Color.BLACK); //set color back to black
 				}
 			}
+		});
+		addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				int key = e.getKeyCode();
+				if(key == KeyEvent.VK_F){
+					if(penDown == true){
+						penDown = false;
+						bot.mouseRelease(InputEvent.BUTTON1_MASK);
+					}else{
+						penDown = true;
+						bot.mousePress(InputEvent.BUTTON1_MASK);
+					}
+					
+				}
+				
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				//do nothing
+			}
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				//do nothing
+			}
+			
 		});
 	}
 	

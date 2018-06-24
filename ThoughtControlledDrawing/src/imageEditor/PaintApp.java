@@ -1,5 +1,6 @@
 package imageEditor;
 
+import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -8,6 +9,7 @@ import java.io.PrintWriter;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
@@ -18,11 +20,11 @@ public class PaintApp extends JFrame{
 	public DrawPanel drawPanel;
     public TopMenuBar menuBar;
     public ToolBar toolBar;
-    private JTextField logger;
+    private JLabel logger;
     private PrintWriter printWriter;
     
-    public PaintApp(PrintWriter pw){
-    	this.setSize(700, 700);
+    public PaintApp(PrintWriter pw) throws AWTException{
+    	this.setSize(900, 900);
         this.setLayout(new BorderLayout());
         
         printWriter = pw; //for logging and timestamping user actions
@@ -31,11 +33,12 @@ public class PaintApp extends JFrame{
         drawPanel = new DrawPanel(this);
         menuBar = new TopMenuBar(this);
         toolBar = new ToolBar(drawPanel);
-        logger = new JTextField();
+        logger = new JLabel("Press \"F\" to Enable Pen | Move the mouse to draw");
         /* Set up the components */
         add(menuBar, BorderLayout.NORTH);
         add(drawPanel, BorderLayout.CENTER);
-        add(toolBar, BorderLayout.EAST);
+        	//Disabled Tool Bar
+        //add(toolBar, BorderLayout.EAST);
         add(logger, BorderLayout.SOUTH);
         
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
