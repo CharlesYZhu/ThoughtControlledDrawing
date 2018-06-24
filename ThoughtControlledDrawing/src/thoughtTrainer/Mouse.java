@@ -11,7 +11,7 @@ public class Mouse {
 	private int _x, _y, _width, _height, _anchorX, _anchorY;
 	
 	public Mouse(int x, int y) {
-		_mouse = new ImageIcon("Images/pointer.png").getImage();
+		_mouse = new ImageIcon("src/Images/pointer.png").getImage();
 		_x = x;
 		_y = y;
 		_width = 64;

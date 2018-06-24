@@ -7,6 +7,8 @@ public class Main {
 	public static void main(String[] args) {
 		
 		ThoughtTrainer trainer = new ThoughtTrainer();
+		
+		
 
 	}
 

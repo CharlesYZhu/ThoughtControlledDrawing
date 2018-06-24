@@ -15,24 +15,26 @@ public class ButtonPanel extends JPanel{
 	
 	public ButtonPanel() {
 		ButtonPanel.ClickListener clickListener = new ButtonPanel.ClickListener();
-		buttons = new JButton[6];
+		buttons = new JButton[4];
 		
-		buttons[0] = new JButton("Train Left-Click");
-		buttons[1] = new JButton("Train Right-Click");
-		buttons[2] = new JButton("Train Up");
-		buttons[3] = new JButton("Train Down");
-		buttons[4] = new JButton("Train Left");
-		buttons[5] = new JButton("Train Right");
+		//can only activate 4 mental commands at a time
+//		buttons[0] = new JButton("Train Left-Click");
+//		buttons[1] = new JButton("Train Right-Click");
+		
+		buttons[0] = new JButton("Train Up");
+		buttons[1] = new JButton("Train Down");
+		buttons[2] = new JButton("Train Left");
+		buttons[3] = new JButton("Train Right");
 		
 		for(int i = 0; i < buttons.length; i++) {
 			buttons[i].addActionListener(clickListener);
 		}
 		
-		this.setLayout(new GridLayout(2,3));
+		this.setLayout(new GridLayout(1,4));
 		this.setPreferredSize(new Dimension(200,200));
 		
 		//add all buttons to the panel
-		for(int i = 0; i < 6; i ++){
+		for(int i = 0; i < buttons.length; i ++){
 			add(buttons[i]);
 		}
 		

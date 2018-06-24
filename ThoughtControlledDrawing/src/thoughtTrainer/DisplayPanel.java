@@ -8,35 +8,25 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 
-public class DisplayPanel extends JComponent{
+public class DisplayPanel extends JPanel{
 	
 	private Graphics2D g2;
-	private Image image;
 	private Rectangle rectangle;
+	private Mouse mouse;
 	
 	public DisplayPanel() {
-		this.setBackground(java.awt.Color.black);
+		this.setBackground(java.awt.Color.WHITE);
 		this.setPreferredSize(new java.awt.Dimension(500, 500));
 		this.setSize(new java.awt.Dimension(500, 500));
+		mouse = new Mouse(318, 218);
 	}
 	
 	protected void paintComponent(Graphics g) {
-		if(image == null) {
-			image = createImage(getSize().width, getSize().height);
-			g2 = (Graphics2D) image.getGraphics();
-			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			clear();
-		}
-		g.drawImage(image,0,0,null);
-		
-	}
-	
-	public void clear() {
-		g2.setPaint(Color.WHITE);
-		g2.fillRect(0,0,getSize().width, getSize().height);
-		g2.setPaint(Color.BLACK);
-		repaint();
+		super.paintComponent(g);
+		Graphics2D brush = (Graphics2D) g;
+		mouse.paint(brush);
 	}
 	
 }
