@@ -55,7 +55,10 @@ public class Main {
 	
 
 	private static void setMentalCommandActions(IntByReference userID, IEE_MentalCommandAction_t command) {
-		// TODO Auto-generated method stub
+		
+	}
+
+	private static void setActiveActions(IntByReference userID) {
 		long action1 = EmoState.IEE_MentalCommandAction_t.MC_LIFT.ToInt();
 		long action2 = EmoState.IEE_MentalCommandAction_t.MC_RIGHT.ToInt();
 		long action3 = EmoState.IEE_MentalCommandAction_t.MC_LEFT.ToInt();
@@ -69,11 +72,6 @@ public class Main {
 		} else {
 			System.out.println("Setting Mental Command Error:" + errorCode);
 		}
-	}
-
-	private static void setActiveActions(IntByReference userID) {
-		// TODO Auto-generated method stub
-		
 	}
 
 
