@@ -39,14 +39,36 @@ public class Main {
 				else if(eventType == Edk.IEE_Event_t.IEE_UserRemoved.ToInt()) {
 					System.out.println("User has been removed");
 				}
+				else {
+					break;
+				}
+			} else if (state != EdkErrorCode.EDK_NO_EVENT.ToInt()) {
+				System.out.println("Internal error in Emotiv Engine");
 			}
 		}
 		
+		Edk.INSTANCE.IEE_EngineDisconnect();
+		Edk.INSTANCE.IEE_EmoStateFree(eState);
+		Edk.INSTANCE.IEE_EmoEngineEventFree(eEvent);
+		
 	}
+	
 
 	private static void setMentalCommandActions(IntByReference userID, IEE_MentalCommandAction_t command) {
 		// TODO Auto-generated method stub
+		long action1 = EmoState.IEE_MentalCommandAction_t.MC_LIFT.ToInt();
+		long action2 = EmoState.IEE_MentalCommandAction_t.MC_RIGHT.ToInt();
+		long action3 = EmoState.IEE_MentalCommandAction_t.MC_LEFT.ToInt();
+		long action4 = EmoState.IEE_MentalCommandAction_t.MC_DROP.ToInt();
+		long actionList = action1 | action2 | action3 | action4;
 		
+		int errorCode = Edk.INSTANCE.IEE_MentalCommandSetActiveActions(userID.getValue(), actionList);
+		
+		if(errorCode == EdkErrorCode.EDK_OK.ToInt()) {
+			System.out.println("Setting Mental Command active actions (LIFT|RIGHT|LEFT|DROP) for user " + userID.getValue());
+		} else {
+			System.out.println("Setting Mental Command Error:" + errorCode);
+		}
 	}
 
 	private static void setActiveActions(IntByReference userID) {
