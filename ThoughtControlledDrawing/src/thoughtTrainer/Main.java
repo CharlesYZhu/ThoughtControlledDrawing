@@ -34,7 +34,7 @@ public class Main {
 					System.out.println("New User " + engineUserID + " added");
 				
 					setActiveActions(engineUserID);
-					setMentalCommandActions(engineUserID, EmoState.IEE_MentalCommandAction_t.MC_NEUTRAL);
+//					setMentalCommandActions(engineUserID, EmoState.IEE_MentalCommandAction_t.MC_NEUTRAL.ToInt());
 				}
 				else if(eventType == Edk.IEE_Event_t.IEE_UserRemoved.ToInt()) {
 					System.out.println("User has been removed");
@@ -54,7 +54,33 @@ public class Main {
 	}
 	
 
-	private static void setMentalCommandActions(IntByReference userID, IEE_MentalCommandAction_t command) {
+	public static void setMentalCommandActions(IntByReference userID, int command) {
+		int action = 0;
+		switch(command){
+		case 0: 
+			System.out.println("Set Action to Neutral");
+			action = EmoState.IEE_MentalCommandAction_t.MC_NEUTRAL.ToInt();
+			break;
+		case 1: 
+			System.out.println("Set Action to Lift");
+			action = EmoState.IEE_MentalCommandAction_t.MC_LIFT.ToInt();
+			break;
+		case 2:
+			System.out.println("Set Action to Drop");
+			action = EmoState.IEE_MentalCommandAction_t.MC_DROP.ToInt();
+			break;
+		case 3:
+			System.out.println("Set Action to Left");
+			action = EmoState.IEE_MentalCommandAction_t.MC_LEFT.ToInt();
+			break;
+		case 4:
+			System.out.println("Set Action to Right");
+			action = EmoState.IEE_MentalCommandAction_t.MC_RIGHT.ToInt();
+			break;
+		}
+		
+		int errorCode = Edk.INSTANCE.IEE_MentalCommandSetTrainingAction(userID.getValue(), action);
+		errorCode = Edk.INSTANCE.IEE_MentalCommandSetTrainingControl(userID.getValue(), Edk.IEE_MentalCommandTrainingControl_t.MC_START.getType());
 		
 	}
 
