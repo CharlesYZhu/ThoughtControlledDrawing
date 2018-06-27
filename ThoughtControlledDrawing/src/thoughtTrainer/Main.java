@@ -14,6 +14,7 @@ public class Main {
 	public static IntByReference engineUserID = null;
 	public String savingURL = "C:\\Users\\Charles\\Desktop\\Emotiv_Profiles";
 	public static int state = 0;
+	public static long actionList = 0;
 	
 	public static void main(String[] args) {
 		
@@ -89,7 +90,7 @@ public class Main {
 		long action2 = EmoState.IEE_MentalCommandAction_t.MC_RIGHT.ToInt();
 		long action3 = EmoState.IEE_MentalCommandAction_t.MC_LEFT.ToInt();
 		long action4 = EmoState.IEE_MentalCommandAction_t.MC_DROP.ToInt();
-		long actionList = action1 | action2 | action3 | action4;
+		actionList = action1 | action2 | action3 | action4;
 		
 		int errorCode = Edk.INSTANCE.IEE_MentalCommandSetActiveActions(userID.getValue(), actionList);
 		
@@ -97,6 +98,14 @@ public class Main {
 			System.out.println("Setting Mental Command active actions (LIFT|RIGHT|LEFT|DROP) for user " + userID.getValue());
 		} else {
 			System.out.println("Setting Mental Command Error:" + errorCode);
+		}
+	}
+	
+	private void trainMentalCommandActions(IntByReference userId){
+		if(Edk.INSTANCE.IEE_SaveUserProfile(userId.getValue(), savingURL) == EdkErrorCode.EDK_OK.ToInt()){
+			System.out.println("Profile Saved");
+		} else {
+			System.out.println("Can't Save Profile");
 		}
 	}
 
