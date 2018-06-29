@@ -8,6 +8,7 @@ import java.awt.AWTException;
 import java.awt.MouseInfo;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 
 public class CommandReader {
@@ -20,7 +21,7 @@ public class CommandReader {
 	public static IntByReference profileID = null;
 	public static String profileName = null;
 	
-	public static Boolean mouseIsDown;
+//	public static Boolean mouseIsDown;
 	
 	public static void main(String[] args) throws InterruptedException, AWTException {
 		Robot bot = new Robot();
@@ -29,7 +30,7 @@ public class CommandReader {
 		String password = "Inner.Workings.9";
 		profileName = "Charles.Zhu";
 		
-		mouseIsDown = false;
+//		mouseIsDown = false;
 
 		
 		engineUserID = new IntByReference(0);
@@ -96,13 +97,14 @@ public class CommandReader {
 //					}
 					
 					if (EmoState.INSTANCE.IS_FacialExpressionIsBlink(eState) == 1) {
-						if(mouseIsDown) {
-							handleMouseClick(bot, false);
-						}
-						else if (mouseIsDown == false) {
-							handleMouseClick(bot, true);
-						}
-						System.out.println("Blink");
+//						if(mouseIsDown) {
+//							handleMouseClick(bot, false);
+//						}
+//						else if (mouseIsDown == false) {
+//							handleMouseClick(bot, true);
+//						}
+//						System.out.println("Blink");
+						handleMouseClick(bot);
 					}
 					
 					handleMouseMove(bot, EmoState.INSTANCE.IS_MentalCommandGetCurrentAction(eState), EmoState.INSTANCE.IS_MentalCommandGetCurrentActionPower(eState));
@@ -126,26 +128,26 @@ public class CommandReader {
 		case 8:
 			if(power > 0) {
 				System.out.println("Mouse Up");
-				bot.mouseMove(currentX , currentY - (int)(power*10) );
+				bot.mouseMove(currentX , currentY - (int)(power*100) );
 				
 			}
 			break;
 		case 16:
 			if(power > 0) {
 				System.out.println("Mouse Down");
-				bot.mouseMove(currentX , currentY + (int)(power*10) );
+				bot.mouseMove(currentX , currentY + (int)(power*100) );
 			}
 			break;
 		case 32:
 			if(power > 0) {
 				System.out.println("Mouse Left");
-				bot.mouseMove(currentX - (int)(power*10) , currentY);
+				bot.mouseMove(currentX - (int)(power*100) , currentY);
 			}
 			break;
 		case 64:
 			if(power > 0) {
 				System.out.println("Mouse Right");
-				bot.mouseMove(currentX + (int)(power*10) , currentY);
+				bot.mouseMove(currentX + (int)(power*100) , currentY);
 			}
 			break;
 		default:
@@ -153,12 +155,16 @@ public class CommandReader {
 		}
 	}
 	
-	private static void handleMouseClick(Robot bot, Boolean mouseDown) {
-		if(mouseDown) {
-			bot.mouseRelease(InputEvent.BUTTON1_MASK);
-		} else {
-			bot.mousePress(InputEvent.BUTTON1_MASK);
-		}
+	private static void handleMouseClick(Robot bot) {
+		bot.keyPress(KeyEvent.VK_F);
+		bot.keyRelease(KeyEvent.VK_F);
+//		if(mouseDown) {
+//			bot.mouseRelease(InputEvent.BUTTON1_MASK);
+//			System.out.println("Mouse Release");
+//		} else {
+//			bot.mousePress(InputEvent.BUTTON1_MASK);
+//			System.out.println("Mouse Press");
+//		}
 	}
 
 
