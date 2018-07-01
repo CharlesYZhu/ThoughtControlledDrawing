@@ -1,5 +1,5 @@
 package thoughtReader;
-
+//UNFINISHED
 import com.emotiv.Iedk.*;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.*;
