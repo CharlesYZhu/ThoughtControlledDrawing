@@ -2,6 +2,8 @@ package imageEditor;
 
 import java.awt.AWTException;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +26,9 @@ public class PaintApp extends JFrame{
     private PrintWriter printWriter;
     
     public PaintApp(PrintWriter pw) throws AWTException{
-    	this.setSize(900, 900);
+    	//make fullscreen
+    	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    	this.setSize(screenSize);
         this.setLayout(new BorderLayout());
         
         printWriter = pw; //for logging and timestamping user actions
