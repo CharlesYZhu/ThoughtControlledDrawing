@@ -5,8 +5,10 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.*;
 
 import java.awt.AWTException;
+import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -25,6 +27,7 @@ public class CommandReader {
 	public static IntByReference profileID = null;
 	public static String profileName = null;
 	public static Boolean canBlink = true;
+	public static int margin = 20; //pixel margin to prevent user from going off the screen
 	
 //	public static Boolean mouseIsDown;
 	
@@ -43,7 +46,7 @@ public class CommandReader {
 
 		String userName = "joseph.quick";
 		String password = "Inner.Workings.9";
-		profileName = "test1";
+		profileName = "subject2";
 		
 //		mouseIsDown = false;
 
@@ -143,26 +146,46 @@ public class CommandReader {
 		case 8:
 			if(power > 0) {
 				System.out.println("Mouse Up");
-				bot.mouseMove(currentX , currentY - (int)(power*100) );
+				if(currentY - (int)(power*100) < margin) {
+					bot.mouseMove(currentX, margin);
+				} else {
+					bot.mouseMove(currentX , currentY - (int)(power*100) );
+				}
 				
 			}
 			break;
 		case 16:
 			if(power > 0) {
 				System.out.println("Mouse Down");
-				bot.mouseMove(currentX , currentY + (int)(power*100) );
+				Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+				double height = screenSize.getHeight();
+				if(currentY + (int)(power*100) > height - margin) {
+					bot.mouseMove(currentX , (int)(height - margin) );
+				}else {
+					bot.mouseMove(currentX , currentY + (int)(power*100) );
+				}
 			}
 			break;
 		case 32:
 			if(power > 0) {
 				System.out.println("Mouse Left");
-				bot.mouseMove(currentX - (int)(power*100) , currentY);
+				if(currentX - (int)(power*100) < margin) {
+					bot.mouseMove(margin , currentY);
+				}else {
+					bot.mouseMove(currentX - (int)(power*100) , currentY);
+				}
 			}
 			break;
 		case 64:
 			if(power > 0) {
+				Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+				double width = screenSize.getWidth();
 				System.out.println("Mouse Right");
-				bot.mouseMove(currentX + (int)(power*100) , currentY);
+				if(currentX + (int)(power*100) > width - margin) {
+					bot.mouseMove((int)(width-margin) , currentY);
+				}else{
+					bot.mouseMove(currentX + (int)(power*100) , currentY);
+				}
 			}
 			break;
 		default:

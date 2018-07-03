@@ -1,5 +1,5 @@
 package thoughtReader;
-//UNFINISHED
+
 import com.emotiv.Iedk.*;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.*;
@@ -7,7 +7,12 @@ import com.sun.jna.ptr.*;
 import java.awt.AWTException;
 import java.awt.MouseInfo;
 import java.awt.Robot;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+
+import javax.swing.Timer;
 
 
 public class LocalCommandReader {
@@ -19,17 +24,28 @@ public class LocalCommandReader {
 	public static IntByReference userCloudID = null;
 	public static IntByReference profileID = null;
 	public static String profileName = null;
+	public static Boolean canBlink = true;
 	
-	public static Boolean mouseIsDown;
+//	public static Boolean mouseIsDown;
 	
 	public static void main(String[] args) throws InterruptedException, AWTException {
 		Robot bot = new Robot();
+		//prevent detecting multiple blinks
+		Timer timer = new Timer(1000, null);
+		timer.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				canBlink = true;
+				System.out.println("can Blink is true");
+				timer.stop();
+			}
+		});
 
 		String userName = "joseph.quick";
 		String password = "Inner.Workings.9";
-		profileName = "Charles.Zhu";
+		profileName = "subject1";
 		
-		mouseIsDown = false;
+//		mouseIsDown = false;
 
 		
 		engineUserID = new IntByReference(0);
@@ -57,7 +73,7 @@ public class LocalCommandReader {
 			return;
 		}
 
-		MainLoop(bot);
+		MainLoop(bot, timer);
 		
 		System.out.println("Quitting...");
 
@@ -71,7 +87,7 @@ public class LocalCommandReader {
 
 	
 
-	public static void MainLoop(Robot bot) {
+	public static void MainLoop(Robot bot, Timer timer) {
 
 		while (true) {
 
@@ -96,13 +112,14 @@ public class LocalCommandReader {
 //					}
 					
 					if (EmoState.INSTANCE.IS_FacialExpressionIsBlink(eState) == 1) {
-						if(mouseIsDown) {
-							handleMouseClick(bot, false);
-						}
-						else if (mouseIsDown == false) {
-							handleMouseClick(bot, true);
-						}
-						System.out.println("Blink");
+//						if(mouseIsDown) {
+//							handleMouseClick(bot, false);
+//						}
+//						else if (mouseIsDown == false) {
+//							handleMouseClick(bot, true);
+//						}
+//						System.out.println("Blink");
+						handleMouseClick(bot, timer);
 					}
 					
 					handleMouseMove(bot, EmoState.INSTANCE.IS_MentalCommandGetCurrentAction(eState), EmoState.INSTANCE.IS_MentalCommandGetCurrentActionPower(eState));
@@ -126,26 +143,26 @@ public class LocalCommandReader {
 		case 8:
 			if(power > 0) {
 				System.out.println("Mouse Up");
-				bot.mouseMove(currentX , currentY - (int)(power*10) );
+				bot.mouseMove(currentX , currentY - (int)(power*100) );
 				
 			}
 			break;
 		case 16:
 			if(power > 0) {
 				System.out.println("Mouse Down");
-				bot.mouseMove(currentX , currentY + (int)(power*10) );
+				bot.mouseMove(currentX , currentY + (int)(power*100) );
 			}
 			break;
 		case 32:
 			if(power > 0) {
 				System.out.println("Mouse Left");
-				bot.mouseMove(currentX - (int)(power*10) , currentY);
+				bot.mouseMove(currentX - (int)(power*100) , currentY);
 			}
 			break;
 		case 64:
 			if(power > 0) {
 				System.out.println("Mouse Right");
-				bot.mouseMove(currentX + (int)(power*10) , currentY);
+				bot.mouseMove(currentX + (int)(power*100) , currentY);
 			}
 			break;
 		default:
@@ -153,39 +170,41 @@ public class LocalCommandReader {
 		}
 	}
 	
-	private static void handleMouseClick(Robot bot, Boolean mouseDown) {
-		if(mouseDown) {
-			bot.mouseRelease(InputEvent.BUTTON1_MASK);
-		} else {
-			bot.mousePress(InputEvent.BUTTON1_MASK);
+	private static void handleMouseClick(Robot bot, Timer timer) {
+		if(canBlink) {
+			bot.keyPress(KeyEvent.VK_F);
+			bot.keyRelease(KeyEvent.VK_F);
+			canBlink = false;
+			timer.restart();
 		}
 	}
 
 
 
 	private static void LoadProfile(int userCloudID, int engineUserID, boolean save, String profileName) {
-		int getNumberProfile = EmotivCloudClient.INSTANCE.EC_GetAllProfileName(userCloudID);
-		
-		/* This part is needed */
-		int result = EmotivCloudClient.INSTANCE.EC_GetProfileId(userCloudID, profileName, profileID);
-
-			if (getNumberProfile > 0) {
-				if (EmotivCloudClient.INSTANCE.EC_LoadUserProfile(userCloudID, engineUserID, profileID.getValue(),
-						-1) == EdkErrorCode.EDK_OK.ToInt()) {
-					System.out.println("Loading finished");
-					//Current Mental Command Activiation Level
-					IntByReference level = new IntByReference(0);
-					Edk.INSTANCE.IEE_MentalCommandGetActivationLevel(engineUserID, level);
-					System.out.println("Current MentalCommand Activation level: " + level.getValue());
-					//Overall skill rating
-					FloatByReference skill = new FloatByReference(0);
-					Edk.INSTANCE.IEE_MentalCommandGetOverallSkillRating(engineUserID, skill);
-					System.out.println("Current overall skill rating: " + skill.getValue());
-				}
-				else
-					System.out.println("Loading failed");
-			}
-			return;
+		Edk.INSTANCE.IEE_LoadUserProfile(engineUserID, "C:\\ProgramData\\EmotivControlPanel\\subject1.emu");
+//		int getNumberProfile = EmotivCloudClient.INSTANCE.EC_GetAllProfileName(userCloudID);
+//		
+//		/* This part is needed */
+//		int result = EmotivCloudClient.INSTANCE.EC_GetProfileId(userCloudID, profileName, profileID);
+//
+//			if (getNumberProfile > 0) {
+//				if (EmotivCloudClient.INSTANCE.EC_LoadUserProfile(userCloudID, engineUserID, profileID.getValue(),
+//						-1) == EdkErrorCode.EDK_OK.ToInt()) {
+//					System.out.println("Loading finished");
+//					//Current Mental Command Activiation Level
+//					IntByReference level = new IntByReference(0);
+//					Edk.INSTANCE.IEE_MentalCommandGetActivationLevel(engineUserID, level);
+//					System.out.println("Current MentalCommand Activation level: " + level.getValue());
+//					//Overall skill rating
+//					FloatByReference skill = new FloatByReference(0);
+//					Edk.INSTANCE.IEE_MentalCommandGetOverallSkillRating(engineUserID, skill);
+//					System.out.println("Current overall skill rating: " + skill.getValue());
+//				}
+//				else
+//					System.out.println("Loading failed");
+//			}
+//			return;
 	}
 	
 }
