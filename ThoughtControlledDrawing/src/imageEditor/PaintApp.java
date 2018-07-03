@@ -37,7 +37,7 @@ public class PaintApp extends JFrame{
         drawPanel = new DrawPanel(this);
         menuBar = new TopMenuBar(this);
         toolBar = new ToolBar(drawPanel);
-        logger = new JLabel("Press \"F\" to Enable Pen | Move the mouse to draw");
+        logger = new JLabel("Press \"F\" to Enable and Disable Pen | Move the mouse to draw --- Blink to Enable and Disable Pen");
         /* Set up the components */
         add(menuBar, BorderLayout.NORTH);
         add(drawPanel, BorderLayout.CENTER);

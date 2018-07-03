@@ -7,8 +7,12 @@ import com.sun.jna.ptr.*;
 import java.awt.AWTException;
 import java.awt.MouseInfo;
 import java.awt.Robot;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+
+import javax.swing.Timer;
 
 
 public class CommandReader {
@@ -20,15 +24,26 @@ public class CommandReader {
 	public static IntByReference userCloudID = null;
 	public static IntByReference profileID = null;
 	public static String profileName = null;
+	public static Boolean canBlink = true;
 	
 //	public static Boolean mouseIsDown;
 	
 	public static void main(String[] args) throws InterruptedException, AWTException {
 		Robot bot = new Robot();
+		//prevent detecting multiple blinks
+		Timer timer = new Timer(1000, null);
+		timer.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				canBlink = true;
+				System.out.println("can Blink is true");
+				timer.stop();
+			}
+		});
 
 		String userName = "joseph.quick";
 		String password = "Inner.Workings.9";
-		profileName = "Charles.Zhu";
+		profileName = "test1";
 		
 //		mouseIsDown = false;
 
@@ -58,7 +73,7 @@ public class CommandReader {
 			return;
 		}
 
-		MainLoop(bot);
+		MainLoop(bot, timer);
 		
 		System.out.println("Quitting...");
 
@@ -72,7 +87,7 @@ public class CommandReader {
 
 	
 
-	public static void MainLoop(Robot bot) {
+	public static void MainLoop(Robot bot, Timer timer) {
 
 		while (true) {
 
@@ -104,7 +119,7 @@ public class CommandReader {
 //							handleMouseClick(bot, true);
 //						}
 //						System.out.println("Blink");
-						handleMouseClick(bot);
+						handleMouseClick(bot, timer);
 					}
 					
 					handleMouseMove(bot, EmoState.INSTANCE.IS_MentalCommandGetCurrentAction(eState), EmoState.INSTANCE.IS_MentalCommandGetCurrentActionPower(eState));
@@ -155,16 +170,13 @@ public class CommandReader {
 		}
 	}
 	
-	private static void handleMouseClick(Robot bot) {
-		bot.keyPress(KeyEvent.VK_F);
-		bot.keyRelease(KeyEvent.VK_F);
-//		if(mouseDown) {
-//			bot.mouseRelease(InputEvent.BUTTON1_MASK);
-//			System.out.println("Mouse Release");
-//		} else {
-//			bot.mousePress(InputEvent.BUTTON1_MASK);
-//			System.out.println("Mouse Press");
-//		}
+	private static void handleMouseClick(Robot bot, Timer timer) {
+		if(canBlink) {
+			bot.keyPress(KeyEvent.VK_F);
+			bot.keyRelease(KeyEvent.VK_F);
+			canBlink = false;
+			timer.restart();
+		}
 	}
 
 
