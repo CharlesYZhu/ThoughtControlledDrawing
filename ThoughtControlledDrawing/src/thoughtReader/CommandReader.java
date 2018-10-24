@@ -27,7 +27,7 @@ public class CommandReader {
 	public static IntByReference profileID = null;
 	public static String profileName = null;
 	public static Boolean canBlink = true;
-	public static int margin = 20; //pixel margin to prevent user from going off the screen
+	public static int margin = 100; //pixel margin to prevent user from going off the screen
 	
 //	public static Boolean mouseIsDown;
 	
@@ -44,10 +44,10 @@ public class CommandReader {
 			}
 		});
 
-		String userName = "joseph.quick";
-		String password = "Inner.Workings.9";
-		profileName = "subject2";
-		
+		String userName = "replace_with_name";
+		String password = "replace_with_password";
+		profileName = "replace_with_profile_name";
+
 //		mouseIsDown = false;
 
 		
